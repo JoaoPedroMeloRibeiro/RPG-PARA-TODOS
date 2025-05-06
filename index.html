@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Criação de Ficha RPG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Criação de Ficha de RPG</h1>
+
+    <div id="selecao-classe">
+      <h2>Escolha uma Classe:</h2>
+      <div class="opcoes">
+        <button onclick="selecionarClasse('guerreiro')">
+          <img src="guerreiro.png" alt="Guerreiro">
+          <span>Guerreiro</span>
+        </button>
+        <button onclick="selecionarClasse('mago')">
+          <img src="mago.png" alt="Mago">
+          <span>Mago</span>
+        </button>
+        <button onclick="selecionarClasse('ladino')">
+          <img src="ladino.png" alt="Ladino">
+          <span>Ladino</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="selecao-raca" style="display: none;">
+      <h2>Escolha uma Raça:</h2>
+      <div class="opcoes">
+        <button onclick="selecionarRaca('humano')">Humano</button>
+        <button onclick="selecionarRaca('elfo')">Elfo</button>
+        <button onclick="selecionarRaca('anao')">Anão</button>
+      </div>
+    </div>
+
+    <div id="selecao-nome" style="display: none;">
+      <h2>Digite o Nome do Personagem:</h2>
+      <input type="text" id="nome" placeholder="Digite o nome">
+      <button onclick="criarFicha()">Criar Ficha</button>
+    </div>
+
+    <div class="resultado" id="resultado"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

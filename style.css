@@ -1,0 +1,70 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #aaa;
+  width: 600px;
+  text-align: center;
+}
+
+h1, h2 {
+  color: #333;
+}
+
+.opcoes {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.opcoes button {
+  background: #eaeaea;
+  border: none;
+  border-radius: 10px;
+  width: 150px;
+  padding: 10px;
+  margin: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 16px;
+}
+
+.opcoes button:hover {
+  background: #ddd;
+}
+
+.opcoes img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 10px;
+}
+
+input {
+  padding: 10px;
+  width: 80%;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+}
+
+button {
+  font-weight: bold;
+}
+
+.resultado {
+  background-color: #f9f9f9;
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
