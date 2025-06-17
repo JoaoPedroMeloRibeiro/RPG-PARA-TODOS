@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Site de RPG - Fichas e Aventuras</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #e0e0e0; margin: 0; padding: 20px; }
+        h1, h2, h3 { text-align: center; }
+        .section { background-color: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .button-group button, button { background-color: #007BFF; color: white; border: none; padding: 10px 15px; margin: 5px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
+        .button-group button:hover, button:hover { background-color: #0056b3; }
+        .bar { display: inline-block; width: 20px; height: 20px; margin-right: 2px; border: 1px solid #333; }
+        .vida { background-color: red; }
+        .vigor { background-color: green; }
+        .mana { background-color: blue; }
+        .armadura { background-color: brown; }
+        .forca { background-color: red; }
+        .velocidade { background-color: green; }
+        .sabedoria { background-color: purple; }
+        .inativo { background-color: lightgray; }
+        input, textarea { width: 90%; padding: 8px; margin: 5px 0 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        label { display: block; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<h1>Criação de Fichas de RPG e Aventuras</h1>
+
+<div class="section">
+    <button onclick="startCreation()">Criar Nova Ficha</button>
+    <button onclick="showAventuraForm()">Criar Nova Aventura</button>
+</div>
+
+<div id="creationArea" class="section"></div>
+
+<h2>Fichas Criadas</h2>
+<div id="fichasArea" class="section"></div>
+
+<h2>Aventuras</h2>
+<div id="aventurasArea" class="section"></div>
+
+<script>
+class Ficha {
+    constructor(nome, classe, especie, arma) {
+        this.nome = nome;
+        this.classe = classe;
+        this.especie = especie;
+        this.arma = arma;
+        this.nivel = 1;
+        this.setupStats();
+    }
+
+    setupStats() {
+        const baseStats = {
+            'Herói': { vigor: 18, vida: 16, mana: 2, armadura: 10, forca: 2, velocidade: 1, sabedoria: 0 },
+            'Mago': { vigor: 10, vida: 14, mana: 18, armadura: 2, forca: 0, velocidade: 1, sabedoria: 3 },
+            'Aventureiro': { vigor: 12, vida: 12, mana: 12, armadura: 5, forca: 1, velocidade: 2, sabedoria: 1 }
+        };
+        const especieBonus = {
+            'Humano': { vigor: 2, vida: 2, mana: 0, armadura: 1, forca: 1, velocidade: 1, sabedoria: 0 },
+            'Elfo': { vigor: 2, vida: 2, mana: 2, armadura: 0, forca: 0, velocidade: 1, sabedoria: 1 },
+            'Anão': { vigor: 2, vida: 2, mana: 0, armadura: 3, forca: 2, velocidade: 0, sabedoria: 0 }
+        };
+
+        let base = baseStats[this.classe];
+        let bonus = especieBonus[this.especie];
+
+        this.pontos_vigor_max = Math.min(base.vigor + bonus.vigor, 20);
+        this.pontos_vigor_atuais = this.pontos_vigor_max;
+
+        this.pontos_vida_max = Math.min(base.vida + bonus.vida, 20);
+        this.pontos_vida_atuais = this.pontos_vida_max;
+
+        this.pontos_mana_max = Math.min(base.mana + bonus.mana, 20);
+        this.pontos_mana_atuais = this.pontos_mana_max;
+
+        this.pontos_armadura = Math.min(base.armadura + bonus.armadura, 20);
+
+        this.forca = Math.min(base.forca + bonus.forca, 5);
+        this.velocidade = Math.min(base.velocidade + bonus.velocidade, 5);
+        this.sabedoria = Math.min(base.sabedoria + bonus.sabedoria, 5);
+    }
+
+    renderizar(index) {
+        let html = `<h3>${this.nome}</h3>`;
+        html += `<div><strong>Classe:</strong> ${this.classe}</div>`;
+        html += `<div><strong>Espécie:</strong> ${this.especie}</div>`;
+        html += `<div><strong>Nível:</strong> ${this.nivel}</div>`;
+        html += this.renderBar('Armadura', this.pontos_armadura, 20, 'armadura');
+        html += this.renderBar('Vida', this.pontos_vida_atuais, 20, 'vida');
+        html += this.renderBar('Vigor', this.pontos_vigor_atuais, 20, 'vigor');
+        html += this.renderBar('Mana', this.pontos_mana_atuais, 20, 'mana');
+        html += this.renderBar('Força', this.forca, 5, 'forca');
+        html += this.renderBar('Velocidade', this.velocidade, 5, 'velocidade');
+        html += this.renderBar('Sabedoria', this.sabedoria, 5, 'sabedoria');
+        html += `<div><strong>Arma:</strong> ${this.arma}</div>`;
+        if (aventuras.length > 0) {
+            html += `<button onclick="addToExistingAventura(${index})">Adicionar a uma Aventura</button>`;
+        }
+        return html;
+    }
+
+    renderBar(label, value, max, classe) {
+        let barHtml = `<div><strong>${label}:</strong> `;
+        for (let i = 1; i <= max; i++) {
+            barHtml += `<span class="bar ${i <= value ? classe : 'inativo'}"></span>`;
+        }
+        barHtml += `</div>`;
+        return barHtml;
+    }
+}
+
+class Aventura {
+    constructor(nome, descricao) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.fichas = [];
+    }
+
+    adicionarFicha(ficha) {
+        this.fichas.push(ficha);
+    }
+
+    renderizar() {
+        let html = `<h3>${this.nome}</h3><p>${this.descricao}</p>`;
+        html += `<h4>Fichas nesta aventura:</h4>`;
+        if (this.fichas.length === 0) {
+            html += `<div>Sem fichas ainda.</div>`;
+        } else {
+            this.fichas.forEach(f => {
+                html += `<div>➡️ ${f.nome} - ${f.classe} - ${f.especie}</div>`;
+            });
+        }
+        return html;
+    }
+}
+
+let fichas = [];
+let aventuras = [];
+let fichaTemp = {};
+
+function startCreation() {
+    fichaTemp = {};
+    document.getElementById('creationArea').innerHTML = `
+        <h2>Escolha uma Classe:</h2>
+        <div class="button-group">
+            <button onclick="chooseClass('Herói')">Herói</button>
+            <button onclick="chooseClass('Mago')">Mago</button>
+            <button onclick="chooseClass('Aventureiro')">Aventureiro</button>
+        </div>
+    `;
+}
+
+function chooseClass(classe) {
+    fichaTemp.classe = classe;
+    document.getElementById('creationArea').innerHTML = `
+        <h2>Escolha uma Espécie:</h2>
+        <div class="button-group">
+            <button onclick="chooseEspecie('Humano')">Humano</button>
+            <button onclick="chooseEspecie('Elfo')">Elfo</button>
+            <button onclick="chooseEspecie('Anão')">Anão</button>
+        </div>
+    `;
+}
+
+function chooseEspecie(especie) {
+    fichaTemp.especie = especie;
+    document.getElementById('creationArea').innerHTML = `
+        <h2>Escolha uma Arma:</h2>
+        <div class="button-group">
+            <button onclick="chooseArma('Espada')">Espada</button>
+            <button onclick="chooseArma('Cajado')">Cajado</button>
+            <button onclick="chooseArma('Adaga')">Adaga</button>
+        </div>
+    `;
+}
+
+function chooseArma(arma) {
+    fichaTemp.arma = arma;
+    document.getElementById('creationArea').innerHTML = `
+        <h2>Digite o Nome da Ficha:</h2>
+        <input type="text" id="fichaNome" placeholder="Nome do Personagem">
+        <button onclick="finalizarFicha()">Criar Ficha</button>
+    `;
+}
+
+function finalizarFicha() {
+    let nome = document.getElementById('fichaNome').value.trim();
+    if (!nome) return alert('Por favor, insira um nome para a ficha!');
+    let ficha = new Ficha(nome, fichaTemp.classe, fichaTemp.especie, fichaTemp.arma);
+    fichas.push(ficha);
+    mostrarFichas();
+    document.getElementById('creationArea').innerHTML = '';
+}
+
+function mostrarFichas() {
+    let area = document.getElementById('fichasArea');
+    area.innerHTML = '';
+    fichas.forEach((ficha, index) => {
+        area.innerHTML += `<div class="section">${ficha.renderizar(index)}</div>`;
+    });
+}
+
+function showAventuraForm() {
+    let html = `<h2>Criar Nova Aventura</h2>
+        <label>Nome da Aventura:</label>
+        <input type="text" id="aventuraNome">
+        <label>Descrição:</label>
+        <textarea id="aventuraDescricao"></textarea>
+        <h3>Escolha as Fichas para adicionar:</h3>`;
+
+    if (fichas.length === 0) {
+        html += `<p>Sem fichas criadas ainda.</p>`;
+    } else {
+        fichas.forEach((f, index) => {
+            html += `<div><input type="checkbox" id="ficha${index}" value="${index}"> ${f.nome} (${f.classe} - ${f.especie})</div>`;
+        });
+    }
+
+    html += `<button onclick="criarAventura()">Criar Aventura</button>`;
+    document.getElementById('creationArea').innerHTML = html;
+}
+
+function criarAventura() {
+    let nome = document.getElementById('aventuraNome').value.trim();
+    let descricao = document.getElementById('aventuraDescricao').value.trim();
+    if (!nome || !descricao) return alert('Preencha nome e descrição da aventura!');
+
+    let novaAventura = new Aventura(nome, descricao);
+    fichas.forEach((ficha, index) => {
+        let checkbox = document.getElementById('ficha' + index);
+        if (checkbox && checkbox.checked) {
+            novaAventura.adicionarFicha(ficha);
+        }
+    });
+
+    aventuras.push(novaAventura);
+    mostrarAventuras();
+    mostrarFichas();
+    document.getElementById('creationArea').innerHTML = '';
+}
+
+function addToExistingAventura(fichaIndex) {
+    if (aventuras.length === 0) return alert('Nenhuma aventura criada ainda.');
+    let escolha = prompt('Escolha o número da aventura:\n' + aventuras.map((a, i) => `${i + 1}) ${a.nome}`).join('\n'));
+    let idx = parseInt(escolha) - 1;
+    if (idx >= 0 && idx < aventuras.length) {
+        aventuras[idx].adicionarFicha(fichas[fichaIndex]);
+        mostrarAventuras();
+    } else {
+        alert('Opção inválida.');
+    }
+}
+
+function mostrarAventuras() {
+    let area = document.getElementById('aventurasArea');
+    area.innerHTML = '';
+    aventuras.forEach(av => {
+        area.innerHTML += `<div class="section">${av.renderizar()}</div>`;
+    });
+}
+
+startCreation();
+</script>
+
+</body>
+</html>
